@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  django-admin:
+    build:
+      context: .
+    volumes:
+      - .:/django-admin
+    depends_on:
+      - db
+    environment:
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_NAME=postgres
+      - SECRET_KEY="django-insecure-$mg^(0xd^-0t(th=w#t3a=c9-ly&f9l^@cst7w%=l2112)-n#0"
+    command: ["/bin/bash", "-c", "cd test_project && python3 manage.py migrate && gunicorn test_project.wsgi:application --bind 0.0.0.0:8000"]
+    ports:
+      - 9999:8000
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
